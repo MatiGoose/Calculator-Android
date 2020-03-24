@@ -17,9 +17,9 @@ class ReversePolishNotation {
         var prededence :MutableMap<String, Int> = HashMap()
         prededence.put("^", 6)
         prededence.put("√", 6)
-        prededence.put("s", 6)
-        prededence.put("c", 6)
-        prededence.put("o", 6)
+        prededence.put("s", 7)
+        prededence.put("c", 7)
+        prededence.put("o", 7)
         prededence.put("÷", 5)
         prededence.put("×", 5)
         prededence.put("+", 4)
@@ -125,7 +125,7 @@ class ReversePolishNotation {
                             val b : Double = stack.pop().toDouble()
                             if(a.toString().equals("0.0"))
                                 throw Exception("DivisionByZero")
-                            summ = b / a;
+                            summ = b / a
                         }
                         "^" ->
                         {
@@ -136,8 +136,8 @@ class ReversePolishNotation {
                         "√" ->
                         {
                             val a : Double = stack.pop().toDouble()
-                            if(a.toString().equals("0.0"))
-                                throw Exception("SqrtZero")
+                            if(a<0)
+                                throw Exception("SqrtError")
                             summ = Math.sqrt(a)
                         }
                         "s" ->
@@ -153,7 +153,10 @@ class ReversePolishNotation {
                         "o" ->
                         {
                             val a : Double = stack.pop().toDouble()
-                            summ = a *(-1)
+                            if(a.toString().equals("0") || a.toString().equals("0.0"))
+                                summ = a
+                            else
+                                summ = a *(-1)
                         }
                     }
                 }

@@ -1,13 +1,14 @@
 package com.example.calculatorandroid
 
+import android.content.DialogInterface
+import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.Exception
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -15,15 +16,16 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     var expressionHeight :Int = 0
     var resultHeight :Int = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         expressionHeight = tvExpression.layoutParams.height
         resultHeight = tvResult.layoutParams.height
         var memoryValue = 0.0
 
         //Numbers
+
         tvOne.setOnClickListener { appendOnExpression("1", true) }
         tvTwo.setOnClickListener { appendOnExpression("2", true) }
         tvThree.setOnClickListener { appendOnExpression("3", true) }
@@ -71,6 +73,8 @@ class MainActivity : AppCompatActivity() {
                 try
                 {
                     var value : Double = result.calculate(parsedExpression)
+                    value = Math.floor(value*10000000000000000.0)/10000000000000000.0
+                    //value = Math.round(value*100000000000000.0)/100000000000000.0
                     tvResult.text = value.toString()
                 }
                 catch (ex:Exception)
@@ -87,7 +91,16 @@ class MainActivity : AppCompatActivity() {
         tvDelete.setOnClickListener {
             val expression = tvExpression.text;
             if(expression.isNotEmpty())
-                tvExpression.text = expression.substring(0, expression.length-1)
+            {
+                if(tvExpression.text.length >= 4 && (tvExpression.text.get(tvExpression.text.length - 2) == 'n' || tvExpression.text.get(tvExpression.text.length - 2) == 's'))
+                {
+                    tvExpression.text = expression.substring(0, expression.length-4)
+                }
+                else
+                {
+                    tvExpression.text = expression.substring(0, expression.length-1)
+                }
+            }
             tvResult.text = ""
         }
 
@@ -177,6 +190,8 @@ class MainActivity : AppCompatActivity() {
         {
             if(tvExpression.text.isEmpty())
                 return
+            if(symbol.equals(".") && (tvExpression.text.contains(".") || tvResult.text.contains(".")))
+                return
             if(tvExpression.text.last().equals('.') && symbol.toString() in "+-÷×^")
             {
                 tvExpression.text = tvExpression.text.substring(0, tvExpression.text.length-1)
@@ -224,13 +239,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 '+', '-', '×','÷','√','^','(',')','s','c', 'E' ->
                 {
-                    if(temp[i].equals('-') && temp[i-1].equals('('))
+                    if(temp[i].equals('-') && (i == 0 || temp[i-1].equals('(')))
                     {
                         parsedString.set(stringIndex, "o")
                         stringIndex++
                         i++
+
                     }
-                    if(temp[i].equals('s'))
+                    else if(temp[i].equals('s'))
                     {
                         parsedString.set(stringIndex, temp[i].toString())
                         stringIndex++
@@ -244,13 +260,19 @@ class MainActivity : AppCompatActivity() {
                     }
                     else if(temp[i].equals('E'))
                     {
-                        parsedString.set(stringIndex, "*")
+                        parsedString.set(stringIndex, "×")
                         stringIndex++
                         parsedString.set(stringIndex, "10")
                         stringIndex++
                         parsedString.set(stringIndex, "^")
                         stringIndex++
                         i++
+                        if(temp[i].equals('-'))
+                        {
+                            parsedString.set(stringIndex, "o")
+                            stringIndex++
+                            i++
+                        }
                     }
                     else
                     {
@@ -279,6 +301,22 @@ class MainActivity : AppCompatActivity() {
             tvExpression.layoutParams.height = expressionHeight
             tvResult.layoutParams.height = resultHeight
         }
+    }
+
+    override fun onBackPressed()
+    {
+
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Logout")
+        builder.setMessage("Do you want logout?")
+        builder.setPositiveButton("Yes", { dialogInterface: DialogInterface, which ->
+            val registerIntent = Intent(this@MainActivity, LoginActivity::class.java)
+            registerIntent.putExtra("Username", intent.getStringExtra("Username"))
+            registerIntent.putExtra("Password", intent.getStringExtra("Password"))
+            startActivity(registerIntent)
+        })
+        builder.setNegativeButton("No", { dialogInterface: DialogInterface, i: Int -> })
+        builder.show()
     }
 }
 
