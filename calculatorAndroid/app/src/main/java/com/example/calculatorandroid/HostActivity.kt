@@ -23,7 +23,6 @@ import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 
 
 class HostActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_host)
@@ -35,20 +34,6 @@ class HostActivity : AppCompatActivity() {
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
     }
-    /*
-    override fun onBackPressed() {
-
-        val count = supportFragmentManager.backStackEntryCount
-
-        if (count == 0) {
-            super.onBackPressed()
-            //additional code
-        } else {
-            supportFragmentManager.popBackStack()
-        }
-
-    }*/
-
     override fun onBackPressed() {
         tellFragments()
     }
